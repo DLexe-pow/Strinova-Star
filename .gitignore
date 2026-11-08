@@ -25,24 +25,5 @@ _download/
 Thumbs.db
 desktop.ini
 .DS_Store
-# ---- Strinova Star ----
-# 自带运行时 / 打包产物（体积巨大，不进仓库）
-python/
-runtime/
-release/
-vendor/
-# 运行数据
-output/
-data/
-scratch/
-# 前端依赖
-ui/desktop/node_modules/
-# 游戏素材（版权原因不随仓库分发，见 assets/README.md）
-assets/characters/
-assets/weapons/
-docs/images/
-# 本地设置与缓存
-ui-settings.json
-roster-cache.json
-.watcher-state.json
-.acl-recovery/
+# 内部开发笔记（不随仓库分发）
+DEVNOTES.md
