@@ -25,5 +25,5 @@ _download/
 Thumbs.db
 desktop.ini
 .DS_Store
-# 内部开发笔记（不随仓库分发）
-DEVNOTES.md
+# 对外 README 的源文件（推仓库时复制成 README.md）
+README.repo.md
