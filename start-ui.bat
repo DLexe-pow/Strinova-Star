@@ -49,7 +49,6 @@ echo [error] No usable Python found. It needs opencv + numpy,
 echo         plus rapidocr-onnxruntime for the OCR features.
 echo   - pip install:  python -m pip install -r requirements.txt
 echo   - or point us at one:  set STRINOVA_PYTHON=D:\path\to\python.exe
-echo   - on this machine:  D:\game\Apex Highlight Clipper\resources\runtime\cpu\python.exe
 echo.
 pause
 exit /b 1

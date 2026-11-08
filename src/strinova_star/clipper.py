@@ -24,9 +24,20 @@ import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
 
+def _sibling_ffmpeg() -> list[Path]:
+    """在常见位置找 ffmpeg：程序目录旁的 bin\、Program Files、以及 D:/game 下各项目的 tools/。"""
+    found: list[Path] = []
+    for folder in (Path(r"D:\game"),):
+        try:
+            found.extend(folder.glob(r"*\resources\tools\ffmpeg.exe"))
+        except OSError:
+            pass
+    return found
+
+
 KNOWN_FFMPEG = (
-    Path(r"D:\game\Apex Highlight Clipper\resources\tools\ffmpeg.exe"),
     Path(r"C:\Program Files\ffmpeg\bin\ffmpeg.exe"),
+    *_sibling_ffmpeg(),
 )
 
 
