@@ -1,0 +1,25 @@
+{
+  "$comment": "profile 字段说明。改 profile 前先读这个。",
+  "name": "人类可读的名字，会显示在 UI 和 session.json 里",
+  "calibrated": "布尔。false 时 CLI 会警告、detect 结果不可信。标定完改成 true",
+  "reference_size": "本 profile 的目标分辨率 [宽, 高]，绝对像素",
+  "reference_base": "坐标所基于的虚拟分辨率，默认 [1920, 1080]。regions 里的数字都写在这个坐标系里",
+  "hud_scale": "HUD 相对 reference_base 的缩放 [sx, sy]。常见取值：等比分 = min(w/1920, h/1080)",
+  "sample_fps": "识别帧率，2~4 足够；提示停留时间短就调高",
+  "language": "界面语言，仅记录用；识别本身靠 kill_patterns",
+  "kill_patterns": "行首关键字列表。命中任一即认为是击杀提示，其后文字为目标名",
+  "left_edge_tolerance": "0~1。OCR 行左缘距 ROI 左缘的相对距离超过它就不算（用来排除别人的击杀播报）",
+  "regions": {
+    "<名字>": {
+      "box": "[x1, y1, x2, y2]，写在 reference_base 坐标系里；要求 x1<x2 且 y1<y2",
+      "anchor": "[横向, 纵向]。横向 left/right/center，纵向 top/bottom/center；决定元素贴哪条边生长",
+      "scale": "可选 [sx, sy]，覆盖全局 hud_scale（不同 HUD 元素的缩放可能不同，实测为准）",
+      "note": "给人看的备注，不参与计算"
+    }
+  },
+  "recording": {
+    "past": "事件往前回看多少秒",
+    "future": "事件往后补多少秒",
+    "pending": "事件间隔小于它算同一波（连杀合并）"
+  }
+}

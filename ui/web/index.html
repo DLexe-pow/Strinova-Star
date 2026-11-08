@@ -1,0 +1,1378 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Strinova Star</title>
+<style>
+  /* ================= 设计系统：简洁、克制 ================= */
+  :root{
+    --bg:#f7f7f9; --panel:#ffffff; --line:#e9e8ef; --line2:#dedce6;
+    --ink:#1e1c24; --ink2:#57535f; --ink3:#86828f;
+    --accent:#6f5fa6; --accent-hover:#5f5094; --accent-soft:#f0ecf8;
+    --ok:#4f8a5b; --danger:#b23b4e; --radius:12px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    font:13px/1.55 -apple-system,"Segoe UI","Microsoft YaHei UI","Microsoft YaHei",system-ui,sans-serif;
+    color:var(--ink);background:var(--bg);
+    -webkit-font-smoothing:antialiased;
+  }
+  [hidden]{display:none !important}
+  body[data-mode="user"] .dev-only{display:none !important}
+  b,strong{font-weight:600}
+
+  /* ---------- 顶栏 ---------- */
+  header.titlebar{
+    position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:14px;
+    height:46px;padding:0 0 0 14px;background:var(--panel);
+    border-bottom:1px solid var(--line);
+    -webkit-app-region:drag;app-region:drag;
+  }
+  .brand{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--ink)}
+  .brand .logo{display:grid;place-items:center;width:20px;height:20px;border-radius:6px;
+    background:var(--accent-soft);color:var(--accent);font-size:11px;line-height:1}
+  .brand small{font-size:12px;font-weight:400;color:var(--ink3);margin-left:2px}
+  .nav{display:flex;gap:2px;-webkit-app-region:no-drag;app-region:no-drag}
+  .nav button{border:0;background:none;padding:6px 11px;border-radius:7px;
+    font-size:13px;font-weight:500;color:var(--ink2)}
+  .nav button:hover{background:#f4f3f7;color:var(--ink)}
+  .nav button.on{background:var(--accent-soft);color:var(--accent)}
+  .spacer{flex:1}
+  .crumbs{-webkit-app-region:no-drag;app-region:no-drag;min-width:0}
+  .path{display:block;max-width:36vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    font-size:12px;color:var(--ink3);background:#f4f3f7;border-radius:6px;padding:3px 8px}
+  .status{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--ink3);
+    -webkit-app-region:no-drag;app-region:no-drag}
+  .status i{width:6px;height:6px;border-radius:50%;background:#9dbf9d;flex:none}
+  .status.busy i{background:var(--accent)}
+  .status.err i{background:var(--danger)}
+  .winbtns{display:flex;-webkit-app-region:no-drag;app-region:no-drag}
+  .winbtns button{width:44px;height:45px;border:0;border-radius:0;background:none;color:var(--ink3);font-size:13px}
+  .winbtns button:hover{background:#f4f3f7;color:var(--ink)}
+  .winbtns button.close:hover{background:var(--danger);color:#fff}
+
+  /* ---------- 版式 ---------- */
+  main{padding:18px 20px 28px;max-width:1440px;margin:0 auto}
+  .page{display:none;grid-template-columns:minmax(0,1fr) 336px;gap:16px;align-items:start}
+  .page.on{display:grid}
+  @media (max-width:1080px){ .page{grid-template-columns:minmax(0,1fr)} }
+  .col{display:flex;flex-direction:column;gap:16px;min-width:0}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px}
+  .card > h2{margin:0 0 12px;font-size:13px;font-weight:600;color:var(--ink2);
+    display:flex;align-items:center;gap:8px}
+  .card > h2 .n{display:grid;place-items:center;width:18px;height:18px;border-radius:5px;
+    background:var(--accent-soft);color:var(--accent);font-size:11px;font-weight:600}
+  .more{margin-left:auto;font-weight:400}
+  .hint{margin:0;font-size:12px;line-height:1.6;color:var(--ink3)}
+  .kv{display:flex;justify-content:space-between;gap:12px;padding:6px 0;
+    font-size:12.5px;color:var(--ink2);border-bottom:1px solid var(--line)}
+  .kv:last-of-type{border-bottom:0}
+  .kv span:last-child{color:var(--ink3)}
+
+  /* ---------- 控件 ---------- */
+  button{white-space:nowrap;
+    font:inherit;font-weight:500;cursor:pointer;border:1px solid transparent;border-radius:8px;
+    background:var(--accent);color:#fff;padding:8px 14px;transition:background .15s,border-color .15s;
+  }
+  button:hover{background:var(--accent-hover)}
+  button:disabled{background:#f1f0f5;color:#a8a4b1;border-color:var(--line);cursor:not-allowed}
+  button.ghost{background:var(--panel);border-color:var(--line2);color:var(--ink2)}
+  button.ghost:hover{background:#faf9fc;border-color:#cbc7d6;color:var(--ink)}
+  button.quiet{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+  button.quiet:hover{background:#e7e0f5}
+  button.big{width:100%;padding:10px 14px}
+  .btnrow{display:flex;gap:8px;flex-wrap:wrap}
+  .btnrow > button{flex:1}
+
+  input,select{
+    width:100%;font:inherit;color:var(--ink);background:var(--panel);
+    border:1px solid var(--line2);border-radius:8px;padding:7px 9px;
+  }
+  input:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(111,95,166,.13)}
+  input::placeholder{color:#b3afbc}
+  label{display:block;font-size:12px;color:var(--ink3);margin:12px 0 5px}
+  .check{display:inline-flex;align-items:center;gap:7px;margin:0;font-size:12.5px;color:var(--ink2)}
+  .check input{width:auto;margin:0}
+  .inline{display:flex;gap:12px}
+  .inline > div{flex:1;min-width:0}
+  details > summary{cursor:pointer;list-style:none;font-size:12.5px;color:var(--ink2);padding:8px 0}
+  details > summary::before{content:"▸ ";color:var(--ink3)}
+  details[open] > summary::before{content:"▾ "}
+
+  /* 设置页：左标签右控件 */
+  .field{display:grid;grid-template-columns:132px minmax(0,1fr);gap:12px;align-items:center;
+    padding:7px 0;border-bottom:1px solid var(--line)}
+  .field > label{margin:0;font-size:12.5px;color:var(--ink2)}
+  .field:last-of-type{border-bottom:0}
+  .field-note{grid-column:2;font-size:11.5px;color:var(--ink3);margin-top:-2px}
+
+  /* 分段开关（用户/调试） */
+  .theme-row{display:flex;gap:8px;flex-wrap:wrap}
+  /* 主题这一行在窄栏里把标签单独放一行，别挤成竖排 */
+  .theme-field{grid-template-columns:1fr;gap:8px;align-items:start}
+  .theme-field .theme-row{justify-content:flex-start}
+  .theme-field .theme{flex:1 1 104px;justify-content:center}
+  .theme{display:flex;align-items:center;gap:8px;padding:7px 12px;border:1px solid var(--line2);
+    background:var(--panel);border-radius:9px;color:var(--ink2);font-size:12.5px;cursor:pointer}
+  .theme:hover{background:#faf9fc}
+  .theme .dots{display:flex;gap:3px}
+  .theme .dots i{width:11px;height:11px;border-radius:50%;display:block}
+  .theme.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft);color:var(--ink);font-weight:600}  .seg{position:relative;display:inline-flex;padding:3px;border-radius:999px;background:#f0eff4;min-width:124px}
+  .seg::after{content:"";position:absolute;top:3px;bottom:3px;left:3px;width:calc(50% - 3px);
+    border-radius:999px;background:#fff;box-shadow:0 1px 2px rgba(30,28,36,.16);
+    transition:transform .2s cubic-bezier(.34,.9,.36,1);pointer-events:none}
+  .seg:has(button[data-mode="debug"].on)::after{transform:translateX(100%)}
+  .seg button{position:relative;z-index:1;flex:1;border:0;background:none;box-shadow:none;
+    color:var(--ink3);padding:5px 12px;font-size:12.5px;border-radius:999px}
+  .seg button:hover{background:none;color:var(--ink2)}
+  .seg button.on{background:none;color:var(--ink);font-weight:600}
+  .seg button:disabled{background:none}
+
+  /* ---------- 播放器 / 时间轴 ---------- */
+  .player-wrap{display:grid;grid-template-columns:minmax(0,1fr) 208px;gap:14px}
+  @media (max-width:900px){ .player-wrap{grid-template-columns:minmax(0,1fr)} }
+  video{display:block;width:100%;background:#0c0b10;border-radius:8px}
+  .timeline{position:relative;height:24px;margin-top:8px;border:1px solid var(--line);
+    border-radius:6px;background:#f4f3f7;overflow:hidden}
+  .timeline .mark{position:absolute;top:50%;transform:translate(-50%,-50%);border-radius:1px;cursor:pointer}
+  .timeline .mark.kill{width:3px;height:15px;background:#b23b4e}
+  .timeline .mark.knockdown{width:5px;height:9px;background:#5b7fb0}
+  .mark:hover{outline:2px solid rgba(30,28,36,.35);outline-offset:1px}
+  .mark b{display:none;position:absolute;bottom:22px;left:50%;transform:translateX(-50%);
+    white-space:nowrap;background:#1e1c24;color:#fff;font-size:11.5px;font-weight:400;
+    padding:3px 7px;border-radius:5px;z-index:5}
+  .mark:hover b{display:block}
+  .tl-sel{position:absolute;top:0;bottom:0;background:rgba(111,95,166,.22);
+    border-left:1px solid var(--accent);border-right:1px solid var(--accent);display:none}
+  .tl-bar{display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap}
+  .tl-bar button{padding:3px 9px;font-size:12px}
+  .tl-bar .tl-range{margin-left:4px;font-size:12px;color:var(--ink3);font-variant-numeric:tabular-nums}
+  .now{display:flex;align-items:baseline;gap:10px;margin-top:10px;font-size:12px;color:var(--ink3)}
+  .now b{font-size:12.5px;font-weight:500;color:var(--ink)}
+  .now span{font-variant-numeric:tabular-nums}
+  #listPath{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  .vlist{display:flex;flex-direction:column;gap:1px;max-height:330px;overflow:auto;margin-top:6px}
+  .file{display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:7px 9px;border-radius:7px;border:1px solid transparent;
+    font-size:12.5px;color:var(--ink2);cursor:pointer}
+  .file:hover{background:#f7f6fa}
+  .file.active{background:var(--accent-soft);border-color:#e2dbf1;color:var(--accent)}
+  .file .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .file .sz{flex:none;font-size:11.5px;color:var(--ink3);font-variant-numeric:tabular-nums}
+
+  /* ---------- 结果：标签页 ---------- */
+  .tabs{display:flex;gap:20px;border-bottom:1px solid var(--line);margin:-2px 0 12px}
+  .tab{border:0;border-radius:0;background:none;padding:8px 0 9px;font-size:13px;
+    color:var(--ink3);border-bottom:2px solid transparent}
+  .tab:hover{background:none;color:var(--ink2)}
+  .tab.on{color:var(--ink);border-bottom-color:var(--accent);font-weight:600}
+  .tab .badge{display:inline-block;margin-left:6px;padding:0 5px;border-radius:999px;
+    background:#f0eff4;color:var(--ink3);font-size:11px;font-weight:500;vertical-align:1px}
+  .tab.on .badge{background:var(--accent-soft);color:var(--accent)}
+  .pane{display:none}
+  .pane.on{display:block}
+  .empty{padding:30px 12px;text-align:center;color:var(--ink3);font-size:12.5px}
+
+  /* 阵容 */
+  .teams{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  @media (max-width:760px){ .teams{grid-template-columns:minmax(0,1fr)} }
+  .team h3{display:flex;align-items:center;gap:8px;margin:0 0 4px;
+    font-size:12px;font-weight:500;color:var(--ink3)}
+  .team h3 .dot{width:7px;height:7px;border-radius:50%;background:#7fae7f;display:inline-block}
+  .team.enemy h3 .dot{background:#c48a72}
+  .team.enemy h3::before{background:#d49aa4}
+  .team h3 .count{margin-left:auto;font-weight:400}
+  .prow{display:grid;grid-template-columns:26px minmax(0,1fr) auto;gap:10px;align-items:center;
+    padding:7px 0;border-top:1px solid var(--line);font-size:12.5px}
+  .prow .portrait{width:26px;height:26px;border-radius:50%;object-fit:cover;background:var(--accent-soft)}
+  .prow .slot-empty{width:26px;height:26px;border-radius:50%;background:var(--accent-soft);display:inline-block}
+  .prow .ph{width:26px;height:26px;border-radius:50%;background:var(--accent-soft);display:inline-block}
+  .prow .nick{color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .prow .who{display:flex;align-items:center;gap:7px;color:var(--ink2);justify-self:end}
+  .prow .who.miss{color:var(--ink3)}
+  .prow .score{color:var(--ink3);font-size:11.5px;font-variant-numeric:tabular-nums;min-width:34px;text-align:right}
+  .portrait{width:26px;height:26px;border-radius:50%;background:#f4f3f7;object-fit:cover;flex:none}
+  .roster-note{display:flex;align-items:center;gap:8px;margin:0 0 10px;font-size:12px;color:var(--ink2)}
+  .roster-note .pill{padding:1px 8px;border-radius:999px;background:var(--accent-soft);
+    color:var(--accent);font-size:11.5px}
+  .roster-grid{display:flex;flex-wrap:wrap;gap:14px}
+  .roster-grid .slot{width:62px;text-align:center;font-size:11.5px;color:var(--ink3)}
+  .roster-grid .slot img{width:44px;height:44px;border-radius:10px;display:block;margin:0 auto 5px;object-fit:cover}
+
+  /* 事件 */
+  .ev{display:grid;grid-template-columns:58px 46px minmax(0,1fr);gap:10px;align-items:center;
+    padding:8px 4px;border-top:1px solid var(--line);font-size:12.5px;cursor:pointer;border-radius:6px}
+  .ev:hover{background:#f7f6fa}
+  .ev time{color:var(--ink3);font-variant-numeric:tabular-nums}
+  .ev .kind{font-size:11.5px;padding:1px 7px;border-radius:4px;justify-self:start;font-weight:500}
+  .ev .kind.kill{background:#fbeef0;color:#a23a4d}
+  .ev .kind.knockdown{background:#eef2f9;color:#3f5f8c}
+  .ev .vic{color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+  /* 切片 */
+  .clip{display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:9px 8px;border-top:1px solid var(--line);font-size:12.5px;cursor:pointer;border-radius:6px}
+  .clip:hover{background:#f7f6fa}
+  .clip.active{background:var(--accent-soft)}
+  .clip .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink)}
+  .clip .sz{flex:none;color:var(--ink3);font-size:11.5px;font-variant-numeric:tabular-nums}
+  .log{max-height:220px;overflow:auto;display:flex;flex-direction:column;gap:2px;
+    font-size:12px;color:var(--ink2);font-variant-numeric:tabular-nums}
+
+  /* 录制 */
+  .rec-time{font-size:26px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:.01em}
+  .rec-time.idle{font-size:14px;font-weight:500;color:var(--ink3)}
+  .rec-audio{display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}
+  .rec-audio select{flex:1;min-width:130px}
+  .bar{height:4px;border-radius:2px;background:#f0eff4;margin-top:12px;display:none;overflow:hidden}
+  .bar > i{display:block;height:100%;width:0;border-radius:2px;background:var(--accent);transition:width .2s}
+
+  ::-webkit-scrollbar{width:9px;height:9px}
+  ::-webkit-scrollbar-thumb{background:#dddbe4;border-radius:6px;border:2px solid transparent;background-clip:padding-box}
+  ::-webkit-scrollbar-thumb:hover{background:#c9c6d2;background-clip:padding-box;border:2px solid transparent}
+    /* ================= 角色主题（只换变量，不动布局） ================= */
+    html[data-theme="xinghui"]{
+      --bg:#f7f7f9;--accent:#6f5fa6;--accent-hover:#5f5094;--accent-soft:#f0ecf8;
+      --line:#e9e8ef;--line2:#dedce6;
+    }
+    html[data-theme="michelle"]{
+      --bg:#f8f5f0;--accent:#3f4d7a;--accent-hover:#333f66;--accent-soft:#eaedf7;
+      --line:#e8e2d8;--line2:#dbd3c5;
+    }
+    html[data-theme="kanami"]{
+      --bg:#fbf4f6;--accent:#a2395a;--accent-hover:#8b3049;--accent-soft:#fbeaf0;
+      --line:#f0e1e6;--line2:#e4ccd4;
+    }
+  .errbox{display:flex;align-items:center;gap:10px;margin-top:8px;padding:8px 10px;
+    border:1px solid #e6c9cf;border-radius:8px;background:#fdf4f5}
+  .errbox .hint{margin:0}
+  .btn.small{padding:5px 10px;font-size:12px}
+
+  /* 回合列表 */
+  .rounds{display:block}
+  .rounds .rd{display:grid;grid-template-columns:74px 1fr auto auto;gap:12px;align-items:center;
+    padding:9px 12px;border-radius:9px;cursor:pointer;border:1px solid transparent}
+  .rounds .rd:hover{background:var(--accent-soft)}
+  .rounds .rd.on{border-color:var(--accent);background:var(--accent-soft)}
+  .rounds .rd .no{font-weight:600;color:var(--accent)}
+  .rounds .rd .rg{color:var(--ink-2);font-variant-numeric:tabular-nums}
+  .rounds .rd .du{color:var(--ink-3);font-variant-numeric:tabular-nums}
+  .rounds .rd .sc{color:var(--ink-2);font-variant-numeric:tabular-nums;min-width:46px;text-align:right}
+  .rounds .rd .sc.win{color:#2f7d4f;font-weight:600}
+  .rounds .row-actions{display:flex;gap:8px;margin:10px 0 4px}
+  /* 版本小标签 + 更新日志 */
+  .brand .ver{font-size:11px;color:#86828f;background:#f3f2f6;border:1px solid var(--line);
+    border-radius:999px;padding:1px 7px;margin-left:8px;letter-spacing:.2px}
+  .changelog{margin:10px 0 0;padding:12px 14px;background:#faf9fc;border:1px solid var(--line);
+    border-radius:10px;font-size:12px;line-height:1.75;color:#57535f;max-height:360px;
+    overflow:auto;white-space:pre-wrap;font-family:inherit}
+</style>
+</head>
+<body data-mode="user">
+
+<header class="titlebar">
+  <div class="brand"><span class="logo">✦</span>Strinova Star<span class="ver" id="verChip" hidden></span></div>
+  <div class="nav">
+    <button data-page="main" class="on">主页</button>
+    <button data-page="settings">设置</button>
+  </div>
+  <div class="crumbs dev-only"><span class="path" id="pathLabel">—</span></div>
+  <div class="spacer"></div>
+  <div class="status" id="status"><i></i><span id="statusText">就绪</span></div>
+  <div class="winbtns">
+    <button id="winMin" title="最小化" type="button">&#8211;</button>
+    <button id="winMax" title="最大化" type="button">&#9723;</button>
+    <button id="winClose" class="close" title="关闭" type="button">&#10005;</button>
+  </div>
+</header>
+
+<main>
+  <!-- ============ 主页 ============ -->
+  <div class="page on" data-page="main">
+    <div class="col">
+      <section class="card">
+        <h2>录像与播放
+          <span class="more btnrow">
+            <button class="ghost" id="pickFolder">选文件夹…</button>
+            <button class="ghost" id="reload">重新扫描</button>
+          </span>
+        </h2>
+        <div class="player-wrap">
+          <div>
+            <video id="player" controls preload="metadata"></video>
+            <div class="timeline" id="timeline" title="点标记跳到那一刻；拖动选一段放大；滚轮缩放；双击复位">
+              <div class="tl-sel" id="tlSel"></div>
+            </div>
+            <div class="tl-bar">
+              <button class="ghost" id="tlOut" title="缩小">－</button>
+              <button class="ghost" id="tlIn" title="放大">＋</button>
+              <button class="ghost" id="tlLeft" title="往左移">‹</button>
+              <button class="ghost" id="tlRight" title="往右移">›</button>
+              <button class="ghost" id="tlFocus" title="缩放到所有标记的范围">聚焦</button>
+              <button class="ghost" id="tlReset" title="看整段">复位</button>
+              <span class="tl-range" id="tlRange"></span>
+            </div>
+            <div class="now"><b id="current">未选择录像</b><span id="videoMeta"></span>
+              <button class="ghost" id="backToFull" hidden style="margin-left:auto;padding:4px 10px;font-size:12px">回到整段录像</button>
+            </div>
+          </div>
+          <div>
+            <div class="hint" id="listPath" style="margin-bottom:6px">这个文件夹里的录像</div>
+            <div class="vlist" id="videos"></div>
+          </div>
+        </div>
+        <input id="videoDir" type="hidden">
+      </section>
+
+      <section class="card">
+        <div class="tabs" id="tabs">
+          <button class="tab on" data-tab="roster">双方阵容<span class="badge" id="badgeRoster" hidden></span></button>
+          <button class="tab" data-tab="events">击杀 / 击倒<span class="badge" id="badgeEvents" hidden></span></button>
+          <button class="tab" data-tab="rounds">回合<span class="badge" id="badgeRounds" hidden></span></button>
+          <button class="tab" data-tab="clips">切片产物</button>
+          <button class="tab dev-only" data-tab="log">日志</button>
+        </div>
+
+        <div class="pane on" id="pane-roster">
+          <div id="rosterBox" class="empty">还没识别阵容。选一段录像，点右边的「识别双方阵容」。</div>
+        </div>
+
+        <div class="pane" id="pane-events">
+          <div id="eventsBox" class="empty">还没找过击杀。点右边的「找我的击杀」。</div>
+        </div>
+
+        <div class="pane" id="pane-rounds">
+          <div id="roundsBox" class="empty">还没分过回合。点右边的「分回合」，按 HUD 上的比分把整局切成一个个小回合。</div>
+        </div>
+
+        <div class="pane" id="pane-clips">
+          <div id="clipsBox" class="empty">还没切过片。识别出击杀后点「按秒数切片」。</div>
+        </div>
+
+        <div class="pane" id="pane-log">
+          <div class="log" id="eventLog"></div>
+        </div>
+      </section>
+    </div>
+
+    <div class="col">
+      <section class="card">
+        <h2>识别与切片</h2>
+        <div class="btnrow" style="flex-direction:column">
+          <button class="big" id="roster" disabled>识别双方阵容</button>
+          <button class="big" id="highlights" disabled>找我的击杀</button>
+          <button class="big ghost" id="rounds" disabled>分回合</button>
+          <button class="big ghost" id="clip" disabled>按秒数切片</button>
+        </div>
+        <div class="hint" style="margin-top:8px">识别阵容要翻 Tab 计分板，约一分钟；没翻也能用顶部阵容条认出角色。</div>
+        <div class="bar"><i id="bar"></i></div>
+        <div class="hint" id="jobMsg" style="margin-top:6px;min-height:17px"></div>
+        <div class="errbox" id="errBox" hidden>
+          <a class="btn ghost small" id="logLink" href="/api/log/export">导出日志</a>
+          <span class="hint">把导出的 txt 发我，里面有出错栈和设置快照</span>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>录制</h2>
+        <div class="rec-time idle" id="recordTime">未开始</div>
+        <div class="hint" id="recordInfo" style="min-height:18px"></div>
+        <div style="margin:10px 0 8px">
+          <label style="margin-top:0">模式</label>
+          <select id="recMode">
+            <option value="manual">手动录像（按一下录一段）</option>
+            <option value="global">全局录像（一直录，停了存整段）</option>
+            <option value="single">单局分割（一局存一个文件）</option>
+            <option value="highlight" disabled>高光录制（还没做）</option>
+          </select>
+        </div>
+        <button class="big" id="record">开始录制</button>
+        <div class="rec-audio">
+          <label class="check"><input type="checkbox" id="recDesktop" checked> 录系统声音</label>
+          <select id="recDesktopDevice"></select>
+        </div>
+        <div class="hint" style="margin-top:8px">游戏里按 <b>F9</b> 也能开关，不用切回桌面。要求游戏用<b>无边框全屏</b>。</div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ============ 设置页 ============ -->
+  <div class="page" data-page="settings">
+    <div class="col">
+      <section class="card">
+        <h2>识别与切片</h2>
+        <div class="field"><label>我的游戏昵称</label><input id="selfName" placeholder="游戏内昵称"></div>
+        <div class="field"><label>击杀前（秒）</label><input id="past" type="number" step="0.5" min="0"></div>
+        <div class="field"><label>击杀后（秒）</label><input id="future" type="number" step="0.5" min="0"></div>
+        <div class="field"><label>合并间隔（秒）</label><input id="joinGap" type="number" step="0.5" min="0">
+          <div class="field-note">0 = 只合并有重叠的两段；填 2 就是隔 2 秒内的也并成一段</div></div>
+        <div class="field"><label>采样帧率</label><input id="fps" type="number" step="0.5" min="0.5" max="5">
+          <div class="field-note">每秒看几帧，越大越不容易漏，也越慢</div></div>
+        <div class="field"><label>ffmpeg</label><input id="ffmpeg" placeholder="留空自动找"></div>
+        <div class="field"><label>录像文件夹</label><input id="videoDirFull" placeholder="录像文件夹"></div>
+        <div class="btnrow" style="margin-top:14px">
+          <button id="save">保存设置</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="col">
+      <section class="card">
+        <h2>界面</h2>
+        <div class="field theme-field" id="themeField"><label>主题</label>
+          <div class="theme-row" id="themeRow">
+            <button class="theme" data-theme="xinghui"><span class="dots"><i style="background:#6f5fa6"></i><i style="background:#a879c9"></i></span>星绘</button>
+            <button class="theme" data-theme="michelle"><span class="dots"><i style="background:#3f4d7a"></i><i style="background:#c9a27e"></i></span>米雪儿·李</button>
+            <button class="theme" data-theme="kanami"><span class="dots"><i style="background:#a2395a"></i><i style="background:#c25a7d"></i></span>香奈美</button>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <span class="seg" id="modeSeg">
+            <button data-mode="user" class="on">用户</button>
+            <button data-mode="debug">调试</button>
+          </span>
+          <span class="hint" style="flex:1;min-width:150px">调试模式多出匹配点、采样帧率、日志页签和顶栏路径。</span>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>自动找新录像</h2>
+        <p class="hint">盯着录像文件夹，录完一局自动找出你的击杀（只识别，不切片）。</p>
+        <div class="btnrow" style="margin-top:12px;align-items:center">
+          <button id="watch">开始监视</button>
+          <span class="hint" id="watchState">未启动</span>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>文件都在哪</h2>
+        <div class="kv"><span>录制原片</span><span>data\recordings\</span></div>
+        <div class="kv"><span>切片产物</span><span>data\clips\</span></div>
+        <div class="kv"><span>识别缓存</span><span>data\roster-cache.json</span></div>
+        <div class="kv"><span>设置</span><span>data\ui-settings.json</span></div>
+        <p class="hint" style="margin-top:10px">开发时这个 data 就是项目里的 output\；打包版的 data 在 exe 旁边。</p>
+        <div class="hint" style="margin-top:10px">出问题时点这个，把导出的 txt 发我即可。</div>
+  <a class="btn ghost" href="/api/log/export" style="margin-top:8px;display:inline-block">导出日志（设置页）</a>
+</section>
+      <section class="card">
+        <h2>关于</h2>
+        <div class="kv"><span>版本</span><span id="aboutVersion">—</span></div>
+        <div class="kv"><span>构建日期</span><span id="aboutBuild">—</span></div>
+        <div class="kv"><span>Python</span><span id="aboutPython">—</span></div>
+        <div class="kv"><span>ffmpeg</span><span id="aboutFfmpeg" title="">—</span></div>
+        <button class="btn ghost" id="showChangelog" style="margin-top:10px">更新日志</button>
+        <pre class="changelog" id="changelog" hidden></pre>
+      </section>
+    </div>
+  </div></main>
+
+<script>
+const state = {settings:{}, videos:[], video:null, events:[], roster:null, characters:{},
+               record:null, clips:[], clip:null, view:null};
+const $ = (id) => document.getElementById(id);
+
+async function api(path, body){
+  const opt = body ? {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)} : {};
+  const res = await fetch(path, opt);
+  const data = await res.json();
+  if (data.error) throw new Error(data.error);
+  return data;
+}
+
+function setStatus(text, kind){
+  $("statusText").textContent = text;
+  $("status").className = "status" + (kind === "error" ? " err" : (kind === "busy" ? " busy" : ""));
+}
+
+/* ---------------- 录像列表 ---------------- */
+function commonPrefix(names){
+  if (names.length < 2) return "";
+  let prefix = names[0];
+  for (const name of names.slice(1)){
+    let i = 0;
+    while (i < prefix.length && i < name.length && prefix[i] === name[i]) i += 1;
+    prefix = prefix.slice(0, i);
+  }
+  const cut = prefix.lastIndexOf(" ");
+  return cut > 6 ? prefix.slice(0, cut + 1) : "";
+}
+
+function shortName(name, prefix){
+  const rest = prefix ? name.slice(prefix.length) : name;
+  // 「2026.10.11 - 15.26.48.02.DVR.mp4」→「10.11 15:26」
+  const m = rest.match(/(\d{4})\.(\d{2})\.(\d{2})\D+(\d{2})\.(\d{2})/);
+  if (m) return `${Number(m[2])}.${m[3]} ${m[4]}:${m[5]}`;
+  return rest.replace(/\.(mp4|mkv|mov)$/i, "");
+}
+
+function renderVideos(){
+  const box = $("videos");
+  const dir = (state.settings && state.settings.video_dir) || "";
+  const label = $("listPath");
+  if (label){
+    label.textContent = dir ? `${dir} · ${state.videos.length} 个录像` : "这个文件夹里的录像";
+    label.title = dir || "";
+  }
+  box.innerHTML = "";
+  if (!state.videos.length){
+    box.innerHTML = '<div class="empty">这里没有录像文件（.mp4 / .mkv / .mov）<br>'
+      + '<span class="hint">点右上角「选文件夹…」换一个文件夹</span></div>';
+    return;
+  }
+  const prefix = commonPrefix(state.videos.map(item => item.name));
+  for (const item of state.videos){
+    const row = document.createElement("div");
+    row.className = "file" + (state.video && state.video.path === item.path ? " active" : "");
+    row.title = item.name;
+    row.innerHTML = `<span class="nm">${shortName(item.name, prefix)}</span>`
+      + `<span class="sz">${(item.size/1048576).toFixed(0)} MB</span>`;
+    row.onclick = () => selectVideo(item);
+    box.appendChild(row);
+  }
+}
+
+function selectVideo(item){
+  state.video = item;
+  state.clip = null;
+  state.view = null;
+  $("backToFull").hidden = true;
+  state.events = [];
+  state.roster = null;
+  state.characters = {};
+  state.clips = [];
+  state.rounds = null;
+  hideBadges();
+  $("player").src = "/api/media?path=" + encodeURIComponent(item.path);
+  $("current").textContent = item.name;
+  $("videoMeta").textContent = "";
+  $("player").onloadedmetadata = () => {
+    const p = $("player");
+    const h = Math.floor(p.duration / 60), s = Math.round(p.duration % 60);
+    $("videoMeta").textContent = `${h > 0 ? h + " 分 " : ""}${s} 秒 · ${p.videoWidth}×${p.videoHeight}`;
+  };
+  for (const id of ["roster","highlights"]) $(id).disabled = false;
+  $("clip").disabled = true;
+  $("rounds").disabled = false;
+  $("roundsBox").className = "empty";
+  $("roundsBox").textContent = "还没分过回合。点右边的「分回合」，按 HUD 上的比分把整局切成一个个小回合。";
+  $("rosterBox").className = "empty";
+  $("rosterBox").textContent = "还没识别阵容。点右边的「识别双方阵容」。";
+  $("eventsBox").className = "empty";
+  $("eventsBox").textContent = "还没找过击杀。点右边的「找我的击杀」。";
+  renderClips([]);
+  renderVideos();
+  loadCached(item.path);
+}
+
+async function loadCached(path){
+  let cached;
+  try { cached = await api("/api/cache?path=" + encodeURIComponent(path)); } catch (_err){ return; }
+  if (state.video && state.video.path !== path) return;   // 期间换了录像就别乱盖
+  if (cached.roster){
+    state.roster = cached.roster;
+    renderRoster(cached.roster);
+    $("badgeRoster").hidden = false;
+    $("badgeRoster").textContent = `${cached.roster.recognized}/${(cached.roster.ally||[]).length + (cached.roster.enemy||[]).length}`;
+  }
+  if (cached.events){
+    state.events = cached.events.events || [];
+    state.characters = cached.events.characters || {};
+    renderEvents();
+    if (state.events.length){
+      $("badgeEvents").hidden = false;
+      $("badgeEvents").textContent = String(state.events.length);
+      $("clip").disabled = false;
+    }
+  }
+  if (cached.rounds && cached.rounds.rounds && cached.rounds.rounds.length){
+    renderRounds(cached.rounds.rounds, cached.rounds.match_end);
+  }
+  if (cached.clips && cached.clips.length) renderClips(cached.clips);
+  renderTimeline();
+  setTimeout(renderTimeline, 1200);   // 元数据晚一点才到，再补画一次标记
+}
+
+/* ---------------- 阵容 ---------------- */
+function portraitTag(character){
+  if (!character) return '<span class="slot-empty"></span>';
+  return `<img class="portrait" src="/api/portrait?name=${encodeURIComponent(character)}" alt="${character}">`;
+}
+
+function teamBlock(title, slots, enemy){
+  const picked = slots.filter(slot => slot.character).length;
+  const rows = slots.map(slot => `
+    <div class="prow">
+      ${portraitTag(slot.character)}
+      <div class="nick" title="${slot.nickname || ""}">${slot.nickname || "—"}</div>
+      <div class="who${slot.character ? "" : " miss"}"><b>${slot.character || "没认出来"}</b>
+        <span class="score dev-only">${slot.inliers ?? ""}</span></div>
+    </div>`).join("");
+  return `<div class="team${enemy ? " enemy" : ""}">
+    <h3><span class="dot"></span>${title}<span class="count">认出 ${picked}/${slots.length}</span></h3>
+    <div class="plist">${rows}</div></div>`;
+}
+
+function renderRoster(result){
+  const box = $("rosterBox");
+  if (result.mode === "lineup"){
+    box.className = "";
+    const grid = (slots) => '<div class="roster-grid">' + slots.map(slot =>
+      `<div class="slot">${portraitTag(slot.character)}<span>${slot.character || "未识别"}</span></div>`).join("") + "</div>";
+    box.innerHTML = `<div class="roster-note"><span class="pill">顶部阵容条</span>
+        没找到计分板，只有角色、没有昵称<span class="dev-only"> · 第 ${result.time} 秒</span></div>`
+      + `<div class="team"><h3><span class="dot"></span>我方</h3>${grid(result.ally)}</div>`
+      + `<div class="team" style="margin-top:12px"><h3><span class="dot" style="background:#b06a4a"></span>对方</h3>${grid(result.enemy)}</div>`;
+    return;
+  }
+  if (!result.found){
+    box.className = "empty";
+    box.textContent = result.message || "没找到计分板";
+    return;
+  }
+  box.className = "";
+  const total = result.ally.length + result.enemy.length;
+  const badge = $("badgeRoster");
+  badge.hidden = false;
+  badge.textContent = `${result.recognized}/${total}`;
+  const merged = result.boards > 1 ? ` · 合并 ${result.boards} 块计分板投票` : "";
+  const parts = [`<div class="roster-note"><span class="pill">认出 ${result.recognized}/${total} 个角色</span>
+      <span class="dev-only">第 ${result.time} 秒的计分板${merged}</span></div>`];
+  let message = (result.message || "").trim();
+  if (message.startsWith("合并了") && message.includes("，")) message = message.slice(message.indexOf("，") + 1);
+  if (message && !/^\d+ 个角色全认出来了$/.test(message)) parts.push(`<div class="hint" style="margin-bottom:8px">${message}</div>`);
+  if (result.filledMessage) parts.push(`<div class="hint" style="margin-bottom:8px">${result.filledMessage}</div>`);
+  parts.push(`<div class="teams">${teamBlock("我方", result.ally, false)}${teamBlock("对方", result.enemy, true)}</div>`);
+  box.innerHTML = parts.join("");
+}
+
+/* ---------------- 事件 ---------------- */
+function timelineData(){
+  // 正在看切片时，时间轴用「片段内时间」：标记取这段切片自己的击杀，基准是切片起点
+  if (state.clip){
+    return {base: state.clip.start || 0,
+            events: state.clip.events || [],
+            total: player.duration || ((state.clip.end || 0) - (state.clip.start || 0)) || 0};
+  }
+  return {base: 0, events: state.events || [], total: player.duration || (state.video && state.video.duration) || 0};
+}
+
+function viewSpan(total){
+  const v = state.view;
+  if (!v || !total) return {start: 0, end: total || 0};
+  const start = Math.max(0, Math.min(v.start, Math.max(0, total - 1)));
+  const end = Math.max(start + 0.5, Math.min(v.end, total));
+  return {start, end};
+}
+
+function tlLabel(total, view){
+  const box = $("tlRange");
+  if (!box) return;
+  if (!total){ box.textContent = ""; return; }
+  if (!state.view){
+    box.innerHTML = `整段 <b>${clock(total)}</b>`;
+    return;
+  }
+  box.innerHTML = `<b>${clock(view.start)}–${clock(view.end)}</b> / 共 ${clock(total)}`;
+}
+
+function setView(start, end){
+  const {total} = timelineData();
+  if (!total) return;
+  const minSpan = Math.max(1.5, total * 0.01);
+  let s = Math.min(start, end - minSpan);
+  let e = Math.max(end, s + minSpan);
+  s = Math.max(0, s);
+  e = Math.min(total, Math.max(e, s + minSpan));
+  state.view = (e - s >= total - 0.01) ? null : {start: s, end: e};
+  renderTimeline();
+}
+
+function zoomAt(cursor, factor){
+  const {total} = timelineData();
+  if (!total) return;
+  const v = viewSpan(total);
+  const span = Math.max(1.5, Math.min(total, (v.end - v.start) * factor));
+  const ratio = (cursor - v.start) / Math.max(0.001, v.end - v.start);
+  const start = cursor - span * Math.max(0, Math.min(1, ratio));
+  setView(start, start + span);
+}
+
+function panBy(seconds){
+  const {total} = timelineData();
+  const v = viewSpan(total);
+  setView(v.start + seconds, v.end + seconds);
+}
+
+function renderTimeline(){
+  const box = $("timeline");
+  if (!box) return;
+  for (const mark of box.querySelectorAll(".mark")) mark.remove();
+  const {base, events, total} = timelineData();
+  const view = viewSpan(total);
+  tlLabel(total, view);
+  if (!total || !events.length) return;
+  const span = Math.max(0.2, view.end - view.start);
+  for (const item of events){
+    const t = (item.time || 0) - base;
+    if (t < view.start - 0.3 || t > view.end + 0.3) continue;
+    const mark = document.createElement("div");
+    const kind = (item.kind || "").toLowerCase();
+    const cls = kind === "kill" || item.label === "击杀" ? "kill"
+              : kind === "knockdown" || item.label === "击倒" ? "knockdown" : "";
+    mark.className = ("mark " + cls).trim();
+    mark.style.left = Math.max(0, Math.min(100, (t - view.start) / span * 100)) + "%";
+    const tip = document.createElement("b");
+    tip.textContent = `${clock(t)} ${item.label || ""} ${item.victim || ""}`.trim();
+    mark.appendChild(tip);
+    mark.onclick = (event) => {
+      event.stopPropagation();
+      player.currentTime = Math.max(0, t - 3);
+      player.play().catch(() => {});
+    };
+    box.appendChild(mark);
+  }
+}
+
+function bindTimeline(){
+  const tl = $("timeline");
+  if (!tl || tl.dataset.bound) return;
+  tl.dataset.bound = "1";
+  let drag = null;
+  tl.addEventListener("pointerdown", (ev) => {
+    if (ev.target.closest(".mark")) return;
+    const rect = tl.getBoundingClientRect();
+    drag = {rect, x0: ev.clientX, moved: false};
+    try { tl.setPointerCapture(ev.pointerId); } catch (_err){}
+  });
+  tl.addEventListener("pointermove", (ev) => {
+    if (!drag) return;
+    const a = Math.min(drag.x0, ev.clientX), b = Math.max(drag.x0, ev.clientX);
+    if (b - a > 6) drag.moved = true;
+    const sel = $("tlSel");
+    sel.style.display = "block";
+    sel.style.left = (a - drag.rect.left) + "px";
+    sel.style.width = (b - a) + "px";
+  });
+  const finish = (ev) => {
+    if (!drag) return;
+    const {rect, x0, moved} = drag;
+    drag = null;
+    $("tlSel").style.display = "none";
+    if (!moved) return;
+    const {total} = timelineData();
+    const v = viewSpan(total);
+    const toTime = (x) => v.start + (x - rect.left) / Math.max(1, rect.width) * (v.end - v.start);
+    const a = toTime(Math.min(x0, ev.clientX)), b = toTime(Math.max(x0, ev.clientX));
+    if (b - a > 0.4) setView(a, b);
+  };
+  tl.addEventListener("pointerup", finish);
+  tl.addEventListener("pointercancel", finish);
+  tl.addEventListener("dblclick", () => { state.view = null; renderTimeline(); });
+  tl.addEventListener("wheel", (ev) => {
+    if (!timelineData().total) return;
+    ev.preventDefault();
+    const rect = tl.getBoundingClientRect();
+    const v = viewSpan(timelineData().total);
+    const cursor = v.start + (ev.clientX - rect.left) / Math.max(1, rect.width) * (v.end - v.start);
+    zoomAt(cursor, ev.deltaY < 0 ? 1 / 1.7 : 1.7);
+  }, {passive: false});
+
+  const anchor = () => {
+    const {base, total} = timelineData();
+    const v = viewSpan(total);
+    const now = (player.currentTime || 0) + base;
+    return now >= v.start && now <= v.end ? now : (v.start + v.end) / 2;
+  };
+  $("tlIn").onclick = () => zoomAt(anchor(), 1 / 1.7);
+  $("tlOut").onclick = () => zoomAt(anchor(), 1.7);
+  $("tlFocus").onclick = () => {
+    const {base, events, total} = timelineData();
+    const times = events.map(e => (e.time || 0) - base).filter(t => t >= 0 && t <= total);
+    if (!times.length) return;
+    const pad = Math.max(1.5, (total || 0) * 0.01);
+    setView(Math.min(...times) - pad, Math.max(...times) + pad);
+  };
+  $("tlLeft").onclick = () => { const {total} = timelineData(); const v = viewSpan(total); panBy(-(v.end - v.start) * 0.5); };
+  $("tlRight").onclick = () => { const {total} = timelineData(); const v = viewSpan(total); panBy((v.end - v.start) * 0.5); };
+  $("tlReset").onclick = () => { state.view = null; renderTimeline(); };
+}
+
+function renderEvents(){
+  const box = $("eventsBox");
+  const badge = $("badgeEvents");
+  if (!state.events.length){
+    box.className = "empty";
+    box.textContent = "这段录像里没有你的击杀/击倒";
+    badge.hidden = true;
+    return;
+  }
+  box.className = "";
+  badge.hidden = false;
+  badge.textContent = String(state.events.length);
+  const rows = state.events.map(e => `
+    <div class="ev" data-t="${e.time}">
+      <time>${e.time.toFixed(1)}s</time>
+      <span class="kind ${e.label === "击杀" ? "kill" : "knockdown"}">${e.label}</span>
+      <span class="vic">${e.victim || "—"}</span>
+    </div>`).join("");
+  const captured = Object.entries(state.characters || {});
+  const extra = captured.length
+    ? `<div class="hint dev-only" style="margin-bottom:8px">顺手从播报头像认出了 ${captured.length} 个人：`
+      + captured.map(([name, character]) => `${name}→${character}`).join("、") + "</div>"
+    : "";
+  box.innerHTML = `<div class="hint" style="margin-bottom:8px">共 ${state.events.length} 个事件，点一条跳到那一秒</div>`
+    + extra + `<div class="evlist">${rows}</div>`;
+  for (const row of box.querySelectorAll(".ev")){
+    row.onclick = () => {
+      const player = $("player");
+player.addEventListener("loadedmetadata", () => renderTimeline());
+      player.currentTime = Math.max(0, Number(row.dataset.t) - 3);
+      player.play().catch(() => {});
+    };
+  }
+  $("clip").disabled = false;
+}
+
+/* ---------------- 切片 ---------------- */
+function clipItem(item){
+  // 兼容两种记录：老缓存只存路径字符串，新的是带时间窗和击杀的对象
+  if (typeof item === "string"){
+    return {path:item, name:item.split(/[\\/]/).pop(), label:"", start:null, end:null, events:[]};
+  }
+  return {path:item.path, name:item.name || String(item.path || "").split(/[\\/]/).pop(),
+          label:item.label || "", start:item.start ?? null, end:item.end ?? null,
+          events:item.events || []};
+}
+
+function clipMeta(clip){
+  const bits = [];
+  if (clip.label) bits.push(clip.label);
+  if (clip.start != null) bits.push(`${clock(clip.start)}–${clock(clip.end)}`);
+  if (clip.events && clip.events.length) bits.push(`${clip.events.length} 个事件`);
+  return bits.join(" · ") || "播放";
+}
+
+function playClip(clip){
+  state.clip = clip;
+  state.view = null;
+  const p = $("player");
+  p.src = "/api/media?path=" + encodeURIComponent(clip.path);
+  $("current").textContent = clip.name;
+  $("backToFull").hidden = false;
+  const label = clipMeta(clip) + "（时间轴按片段内时间标）";
+  $("videoMeta").textContent = label;
+  p.onloadedmetadata = () => { $("videoMeta").textContent = label; };
+  for (const row of $("clipsBox").querySelectorAll(".clip")){
+    row.classList.toggle("active", row.dataset.path === clip.path);
+  }
+  renderTimeline();
+  setTimeout(renderTimeline, 800);
+}
+
+function backToFull(){
+  if (!state.video) return;
+  state.clip = null;
+  state.view = null;
+  $("backToFull").hidden = true;
+  const p = $("player");
+  p.src = "/api/media?path=" + encodeURIComponent(state.video.path);
+  $("current").textContent = state.video.name;
+  $("videoMeta").textContent = "";
+  p.onloadedmetadata = () => {
+    const h = Math.floor(p.duration / 60), s = Math.round(p.duration % 60);
+    $("videoMeta").textContent = `${h > 0 ? h + " 分 " : ""}${s} 秒 · ${p.videoWidth}×${p.videoHeight}`;
+  };
+  for (const row of $("clipsBox").querySelectorAll(".clip")) row.classList.remove("active");
+  renderTimeline();
+  setTimeout(renderTimeline, 800);
+}
+
+function renderRounds(list, matchEnd){
+  state.rounds = list || [];
+  const box = $("roundsBox");
+  box.className = state.rounds.length ? "rounds" : "empty";
+  box.innerHTML = "";
+  if (!state.rounds.length){
+    box.textContent = "没切出回合。这个模式下 HUD 上没有回合比分，或者录像不是对局画面。";
+    $("badgeRounds").hidden = true;
+    return;
+  }
+  $("badgeRounds").hidden = false;
+  $("badgeRounds").textContent = String(state.rounds.length);
+
+  state.rounds.forEach((item, index) => {
+    const row = document.createElement("div");
+    row.className = "rd";
+    const win = item.score && item.score.split("-")[0] !== "0";
+    row.innerHTML = `<span class="no">回合 ${item.index}</span>`
+      + `<span class="rg">${clock(item.start)} – ${clock(item.end)}</span>`
+      + `<span class="du">${Math.round(item.duration)} 秒</span>`
+      + `<span class="sc${win ? " win" : ""}">${item.score || ""}</span>`;
+    row.onclick = () => {
+      const p = $("player");
+      state.clip = null;
+      state.view = null;
+      p.currentTime = item.start + 0.2;
+      p.play().catch(() => {});
+      for (const other of box.children) other.classList.remove("on");
+      row.classList.add("on");
+      renderTimeline();
+    };
+    box.appendChild(row);
+  });
+  if (matchEnd){
+    const tail = document.createElement("div");
+    tail.className = "hint";
+    tail.style.marginTop = "8px";
+    tail.textContent = `第 ${clock(matchEnd)} 之后是对局结算/回大厅。`;
+    box.appendChild(tail);
+  }
+  renderTimeline();
+}
+function renderClips(files){
+  const box = $("clipsBox");
+  state.clips = (files || []).map(clipItem);
+  if (!state.clips.length){
+    box.className = "empty";
+    box.textContent = "还没切过片。识别出击杀后点「按秒数切片」。";
+    return;
+  }
+  box.className = "";
+  box.innerHTML = `<div class="hint" style="margin-bottom:8px">共 ${state.clips.length} 段，点一下在左边播放（带时间轴标记）</div>`
+    + `<div class="cliplist">` + state.clips.map(c => {
+        const active = state.clip && state.clip.path === c.path ? " active" : "";
+        return `<div class="clip${active}" data-path="${c.path}"><span class="nm">${c.name}</span>`
+             + `<span class="sz">${clipMeta(c)}</span></div>`;
+      }).join("") + "</div>";
+  for (const [index, row] of [...box.querySelectorAll(".clip")].entries()){
+    row.onclick = () => playClip(state.clips[index]);
+  }
+}
+
+/* ---------------- 模式 ---------------- */
+/* 角色主题 */
+  const THEMES = ["xinghui", "michelle", "kanami"];
+  function applyTheme(name){
+    const value = THEMES.includes(name) ? name : "xinghui";
+    document.documentElement.dataset.theme = value;
+    try { localStorage.setItem("strinova-theme", value); } catch (e) {}
+    const row = $("themeRow");
+    if (row) for (const btn of row.querySelectorAll(".theme")){
+      btn.classList.toggle("on", btn.dataset.theme === value);
+    }
+    return value;
+  }
+
+  function bindThemes(){
+    const row = $("themeRow");
+    if (!row) return;
+    row.onclick = async (event) => {
+      const btn = event.target.closest(".theme");
+      if (!btn) return;
+      const name = applyTheme(btn.dataset.theme);
+      try {
+        const data = await api("/api/settings", {theme: name});
+        state.settings = data.settings;
+        setStatus("主题已换成「" + btn.textContent.trim() + "」");
+      } catch (err) { setStatus("主题没存上：" + err.message); }
+    };
+  }
+
+  function applyMode(mode){
+  const value = mode === "debug" ? "debug" : "user";
+  document.body.dataset.mode = value;
+  for (const btn of $("modeSeg").querySelectorAll("button")){
+    btn.classList.toggle("on", btn.dataset.mode === value);
+  }
+}
+
+/* ---------------- 录制 ---------------- */
+function clock(seconds){
+  const total = Math.max(0, Math.round(seconds));
+  const h = Math.floor(total / 3600), m = Math.floor(total % 3600 / 60), s = total % 60;
+  const pad = (n) => String(n).padStart(2, "0");
+  return (h ? pad(h) + ":" : "") + pad(m) + ":" + pad(s);
+}
+
+function renderRecord(record){
+  if (!record) return;
+  state.record = record;
+  const time = $("recordTime");
+  const running = !!record.running;
+  time.className = "rec-time" + (running ? "" : " idle");
+  time.innerHTML = running ? `<span class="rec-dot"></span>${clock(record.seconds)}`
+                           : (record.full ? "已保存" : "未开始");
+  $("record").textContent = running ? "停止录制" : "开始录制";
+  $("record").className = running ? "big danger" : "big";
+  const bits = [];
+  if (running) bits.push(`${record.segments} 段`, (record.size / 1048576).toFixed(0) + " MB",
+                         "磁盘剩余 " + record.free_gb + " GB");
+  const audio = record.audio || {};
+  if (running && audio.device){
+    const short = audio.device.replace(/\s*\[Loopback\]$/, "");
+    bits.push(audio.connected ? `声音 ${audio.seconds}s（${short}）` : `声音没接上：${short}`);
+  }
+  if (running && record.mode === "single"){
+    bits.push(record.match ? "对局 " + record.match : "还没读到对局编号");
+  }
+  if (record.message) bits.push(record.message);
+  if (record.error) bits.push(record.error);
+  $("recordInfo").textContent = bits.join(" · ");
+  $("recordInfo").className = record.error ? "hint err" : "hint";
+}
+
+/* ---------------- 轮询 ---------------- */
+let shownJobKey = null;
+
+async function pollJob(){
+  let data;
+  try { data = await api("/api/job"); } catch (_err){ return; }
+  renderRecord(data.record);
+  loadAbout();
+  const job = data.job;
+  if (!job){ $("bar").parentElement.style.display = "none"; return; }
+  const running = job.state === "running";
+  $("bar").parentElement.style.display = running ? "block" : "none";
+  $("bar").style.width = (job.progress * 100).toFixed(0) + "%";
+  $("jobMsg").textContent = job.state === "error" ? job.error : (running ? (job.message || job.title) : "");
+
+  const box = document.getElementById("errBox");
+  if (box) box.hidden = job.state !== "error";
+  if (running){ setStatus(job.title + "…", "busy"); return; }
+
+  const key = `${job.title}|${job.started}`;
+  if (key === shownJobKey) return;
+  shownJobKey = key;
+  setStatus(job.state === "error" ? "出错：" + job.error : "完成", job.state === "error" ? "error" : "");
+  if (job.state !== "done" || !job.result) return;
+
+  const r = job.result;
+  if (r.ally){ state.roster = r; renderRoster(r); switchTab("roster"); }
+  if (r.fixed_events > 0 && state.video){
+    // 刚认完阵容：之前识别出来的播报名字已经被订正，把事件列表换成订正后的
+    try {
+      const cached = await api("/api/cache?path=" + encodeURIComponent(state.video.path));
+      if (cached && cached.events && cached.events.video === state.video.path){
+        state.events = cached.events.events || [];
+        renderEvents();
+        renderTimeline();
+        setStatus(`顺手用昵称表订正了 ${r.fixed_events} 条播报名字`, "");
+      }
+    } catch (_err){ /* 订正失败不影响阵容展示 */ }
+  }
+  if (r.characters){ state.characters = {}; mergeCharacters(r.characters); }
+  if (r.rounds){ renderRounds(r.rounds, r.match_end); switchTab("rounds"); }
+  if (r.events){ state.events = r.events; renderEvents(); switchTab("events"); }
+  if (r.files){
+    const segs = r.segments || [];
+    const merged = segs.filter(s => (s.count || 1) > 1).length;
+    $("jobMsg").textContent = `切出 ${r.files.length} 段` + (merged ? `（${merged} 段是多事件合并的）` : "");
+    renderClips(r.clips || r.files);
+    switchTab("clips");
+  }
+}
+
+function mergeCharacters(characters){
+  if (!characters) return 0;
+  Object.assign(state.characters, characters);
+  const result = state.roster;
+  if (!result) return 0;
+  let added = 0;
+  for (const slot of [...(result.ally || []), ...(result.enemy || [])]){
+    if (slot.character) continue;
+    for (const [name, character] of Object.entries(characters)){
+      if (name === slot.nickname || name.includes(slot.nickname) || slot.nickname.includes(name)){
+        slot.character = character; added += 1; break;
+      }
+    }
+  }
+  if (added){
+    const slots = [...(result.ally || []), ...(result.enemy || [])];
+    result.recognized = slots.filter(slot => slot.character).length;
+    result.filledMessage = `又从击杀播报的头像补了 ${added} 个角色`;
+    renderRoster(result);
+  }
+  return added;
+}
+
+/* ---------------- 标签页 ---------------- */
+function switchTab(name){
+  for (const tab of $("tabs").querySelectorAll(".tab")) tab.classList.toggle("on", tab.dataset.tab === name);
+  for (const pane of document.querySelectorAll(".pane")) pane.classList.toggle("on", pane.id === "pane-" + name);
+}
+
+function hideBadges(){
+  $("badgeRoster").hidden = true;
+  $("badgeEvents").hidden = true;
+  $("badgeRounds").hidden = true;
+}
+
+$("tabs").onclick = (event) => {
+  const tab = event.target.closest(".tab");
+  if (tab) switchTab(tab.dataset.tab);
+};
+
+/* ---------------- 启动 ---------------- */
+async function loadAbout(){
+  try{
+    const info = await api("/api/about");
+    const chip = $("verChip");
+    if (chip && info.version){ chip.textContent = "v" + info.version; chip.hidden = false; }
+    if ($("aboutVersion")) $("aboutVersion").textContent = info.label || ("v" + info.version);
+    if ($("aboutBuild")) $("aboutBuild").textContent = info.build || "—";
+    if ($("aboutPython")) $("aboutPython").textContent = info.python || "—";
+    const ff = $("aboutFfmpeg");
+    if (ff){ ff.textContent = shortPath(info.ffmpeg || "—"); ff.title = info.ffmpeg || ""; }
+  }catch(err){ /* 老后端没有这个接口时静默跳过 */ }
+}
+
+function shortPath(text){
+  const s = String(text || "");
+  return s.length > 42 ? "…" + s.slice(-40) : s;
+}
+
+$("showChangelog").onclick = async () => {
+  const box = $("changelog");
+  if (!box) return;
+  if (!box.hidden){ box.hidden = true; return; }
+  if (!box.dataset.loaded){
+    try{
+      const resp = await fetch("/api/changelog");
+      box.textContent = await resp.text();
+      box.dataset.loaded = "1";
+    }catch(err){ box.textContent = "读不到更新日志：" + err.message; }
+  }
+  box.hidden = false;
+  box.scrollTop = 0;
+};
+
+async function boot(){
+  const data = await api("/api/state");
+  state.settings = data.settings;
+  state.videos = data.videos;
+  applyTheme(data.settings.theme || "xinghui");
+      bindThemes();
+      applyMode(data.settings.mode || "user");
+  $("pathLabel").textContent = data.settings.video_dir || "未设置录像文件夹";
+  $("videoDir").value = data.settings.video_dir || "";
+  $("videoDirFull").value = data.settings.video_dir || "";
+  $("selfName").value = data.settings.self_name || "";
+  $("fps").value = data.settings.fps;
+  $("past").value = data.settings.past;
+  $("future").value = data.settings.future;
+  $("joinGap").value = data.settings.join_gap ?? 0;
+  $("ffmpeg").value = data.settings.ffmpeg || "";
+  watching = !!data.watch;
+  $("watch").textContent = watching ? "停止监视" : "开始监视";
+  $("watchState").textContent = watching ? "监视中" : "未启动";
+  if (data.settings.record_mode) $("recMode").value = data.settings.record_mode;
+  $("recDesktop").checked = data.settings.record_desktop_audio !== false;
+  loadAudioDevices(data.settings.record_desktop_audio_device || "");
+  renderRecord(data.record);
+  renderVideos();
+  if (state.videos.length) selectVideo(state.videos[0]);
+}
+
+async function loadAudioDevices(selected){
+  let data;
+  try { data = await api("/api/audio-devices"); } catch (_err){ return; }
+  const list = data.desktop || [];
+  const box = $("recDesktopDevice");
+  box.innerHTML = `<option value="">默认播放设备</option>` +
+    list.map((name) => `<option value="${name.replace(/"/g, "&quot;")}">${name.replace(/\s*\[Loopback\]$/, "")}</option>`).join("");
+  if (selected) box.value = selected;
+  if (!list.length){
+    box.innerHTML = `<option value="">没找到能录的播放设备</option>`;
+    $("recDesktop").checked = false;
+  }
+}
+
+$("recDesktop").onchange = async () => {
+  try {
+    const data = await api("/api/settings", {record_desktop_audio: $("recDesktop").checked});
+    state.settings = data.settings;
+    setStatus($("recDesktop").checked ? "录制时带上系统声音" : "不录系统声音");
+  } catch (err){ setStatus(err.message, "error"); }
+};
+
+$("recDesktopDevice").onchange = async () => {
+  try {
+    const data = await api("/api/settings", {record_desktop_audio_device: $("recDesktopDevice").value});
+    state.settings = data.settings;
+    setStatus("系统声音设备：" + ($("recDesktopDevice").selectedOptions[0]?.textContent || "默认"));
+  } catch (err){ setStatus(err.message, "error"); }
+};
+
+$("modeSeg").onclick = async (event) => {
+  const btn = event.target.closest("button[data-mode]");
+  if (!btn) return;
+  applyMode(btn.dataset.mode);
+  try {
+    const data = await api("/api/settings", {mode: btn.dataset.mode});
+    state.settings = data.settings;
+    setStatus(btn.dataset.mode === "debug" ? "已切到调试模式" : "已切到用户模式");
+  } catch (err){ setStatus(err.message, "error"); }
+};
+
+$("reload").onclick = async () => {
+  const dir = $("videoDirFull").value || $("videoDir").value;
+  const data = await api("/api/settings", {video_dir: dir});
+  state.settings = data.settings;
+  $("pathLabel").textContent = data.settings.video_dir || "未设置录像文件夹";
+  state.videos = (await api("/api/state")).videos;
+  renderVideos();
+  setStatus(`扫到 ${state.videos.length} 个录像`);
+};
+
+$("pickFolder").onclick = async () => {
+  setStatus("在系统窗口里选文件夹…（选完这里会自动更新）", "busy");
+  try {
+    const initial = ($("videoDirFull").value || $("videoDir").value || "").trim();
+    let picked = "";
+    if (window.strinovaWin && window.strinovaWin.pickFolder){
+      picked = (await window.strinovaWin.pickFolder(initial)) || "";
+    } else {
+      const data = await api("/api/pick-folder", {initial});
+      picked = data.path || "";
+    }
+    if (!picked){ setStatus("没选文件夹"); return; }
+    $("videoDir").value = picked;
+    $("videoDirFull").value = picked;
+    const saved = await api("/api/settings", {video_dir: picked});
+    state.settings = saved.settings;
+    $("pathLabel").textContent = picked;
+    state.videos = (await api("/api/state")).videos;
+    renderVideos();
+    setStatus(`录像文件夹已切到 ${picked}（${state.videos.length} 个录像）`);
+  } catch (err){ setStatus(err.message, "error"); }
+};
+
+  bindTimeline();
+  $("backToFull").onclick = backToFull;
+$("save").onclick = async () => {
+  try {
+    const data = await api("/api/settings", {
+      self_name: $("selfName").value,
+      fps: Number($("fps").value), past: Number($("past").value), future: Number($("future").value),
+      join_gap: Number($("joinGap").value), ffmpeg: $("ffmpeg").value,
+      video_dir: $("videoDirFull").value || $("videoDir").value});
+    state.settings = data.settings;
+    $("pathLabel").textContent = data.settings.video_dir || "未设置录像文件夹";
+    setStatus("设置已保存");
+  } catch (err){ setStatus(err.message, "error"); }
+};
+
+$("roster").onclick = async () => {
+  if (!state.video) return;
+  setStatus("正在识别双方阵容…", "busy");
+  $("jobMsg").textContent = "";
+  try { await api("/api/roster", {video: state.video.path}); }
+  catch (err){ setStatus(err.message, "error"); }
+};
+
+$("highlights").onclick = async () => {
+  if (!state.video) return;
+  setStatus("正在找击杀…", "busy");
+  $("jobMsg").textContent = "";
+  try { await api("/api/highlights", {video: state.video.path, self_name: $("selfName").value}); }
+  catch (err){ setStatus(err.message, "error"); }
+};
+
+$("rounds").onclick = async () => {
+  if (!state.video) return;
+  setStatus("正在按回合切分…（整局要读几百帧，慢一点）", "busy");
+  $("jobMsg").textContent = "";
+  try { await api("/api/rounds", {video: state.video.path}); }
+  catch (err){ setStatus(err.message, "error"); }
+};
+
+$("clip").onclick = async () => {
+  if (!state.video || !state.events.length) return;
+  setStatus("正在切片…", "busy");
+  $("jobMsg").textContent = "";
+  try { await api("/api/clip", {video: state.video.path, events: state.events}); }
+  catch (err){ setStatus(err.message, "error"); }
+};
+
+$("record").onclick = async () => {
+  const running = state.record && state.record.running;
+  setStatus(running ? "正在停止录制…" : "开始录制…", "busy");
+  try {
+    const data = await api("/api/record", running ? {action: "stop"} : {action: "start"});
+    renderRecord(data.record);
+    setStatus(running ? "录制已停止" : "开始录制了");
+  } catch (err){ setStatus(err.message, "error"); }
+};
+
+$("recMode").onchange = async () => {
+  try {
+    const data = await api("/api/settings", {record_mode: $("recMode").value});
+    state.settings = data.settings;
+    setStatus("录制模式：" + $("recMode").selectedOptions[0].textContent);
+  } catch (err){ setStatus(err.message, "error"); }
+};
+
+let watching = false;
+$("watch").onclick = async () => {
+  try {
+    const data = await api("/api/watch", {on: !watching});
+    watching = !!data.watch.running;
+    $("watch").textContent = watching ? "停止监视" : "开始监视";
+    $("watchState").textContent = watching ? "监视中" : "未启动";
+    setStatus(watching ? "开始盯着录像文件夹" : "不盯了");
+  } catch (err){ setStatus(err.message, "error"); }
+};
+
+function logLine(text){
+  const box = $("eventLog");
+  const line = document.createElement("div");
+  line.textContent = text;
+  box.appendChild(line);
+  while (box.childElementCount > 60) box.removeChild(box.firstChild);
+  box.scrollTop = box.scrollHeight;
+}
+
+function connectEvents(){
+  const source = new EventSource("/api/events");
+  source.onmessage = (event) => {
+    try { logLine(JSON.parse(event.data).text); } catch (_e) {}
+  };
+}
+
+/* ---------- 主页 / 设置 分页 ---------- */
+function showPage(name){
+  document.body.dataset.page = name;
+  for (const page of document.querySelectorAll("main .page")){
+    page.classList.toggle("on", page.dataset.page === name);
+  }
+  for (const btn of document.querySelectorAll("header .nav button")){
+    btn.classList.toggle("on", btn.dataset.page === name);
+  }
+  window.scrollTo({ top: 0, behavior: "auto" });
+}
+for (const btn of document.querySelectorAll("header .nav button")){
+  btn.onclick = () => showPage(btn.dataset.page);
+}
+
+connectEvents();
+setInterval(pollJob, 700);
+boot().catch((err) => setStatus("连不上服务：" + err.message, "error"));
+// ---- 无边框窗口的自绘按钮（只有 Electron 里才有 window.strinovaWin） ----
+(() => {
+  const api = window.strinovaWin;
+  if (!api) { document.querySelectorAll(".winbtns").forEach((el) => { el.hidden = true; }); return; }
+  const bind = (id, fn) => { const el = document.getElementById(id); if (el) el.addEventListener("click", fn); };
+  bind("winMin", () => api.minimize());
+  bind("winMax", () => api.toggleMaximize());
+  bind("winClose", () => api.close());
+  document.querySelector(".titlebar").addEventListener("dblclick", (e) => {
+    if (e.target.closest("button")) return;
+    api.toggleMaximize();
+  });
+})();
+</script>
+</body>
+</html>

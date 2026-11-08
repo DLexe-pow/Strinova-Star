@@ -1,0 +1,9 @@
+# 运行时依赖（本机实测：python 3.11.9，cv2 5.0.0 / numpy 2.4.6 / onnxruntime 1.31.0）
+# 嵌入式 python 不认 PYTHONPATH，直接跑 run.py / run_tests.py 即可。
+opencv-python>=4.8
+numpy>=1.26
+rapidocr-onnxruntime>=1.3
+
+# 可选：SURF 需要带 contrib 的构建（`run.py avatars --method surf`）。
+# 注意它和 opencv-python 装在同一环境会互相覆盖，二选一。
+# opencv-contrib-python>=4.8

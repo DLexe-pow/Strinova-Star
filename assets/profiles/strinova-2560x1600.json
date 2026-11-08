@@ -1,0 +1,266 @@
+{
+  "name": "Strinova 2560x1600（实机标定 · 2026.10.11 录像）",
+  "calibrated": true,
+  "reference_size": [
+    2560,
+    1600
+  ],
+  "reference_base": [
+    1920,
+    1080
+  ],
+  "hud_scale": [
+    1.3333,
+    1.3333
+  ],
+  "sample_fps": 4.0,
+  "language": "zh-CN",
+  "self_names": [
+    "穗织剑圣星绘绘"
+  ],
+  "min_confidence": 0.65,
+  "modifiers": [
+    "精准",
+    "精确",
+    "超远",
+    "爆头"
+  ],
+  "action_patterns": {
+    "kill": [
+      "终结",
+      "击败",
+      "击杀",
+      "擊殺",
+      "KILLED"
+    ],
+    "knockdown": [
+      "击倒",
+      "擊倒",
+      "KNOCKED"
+    ],
+    "assist": [
+      "助攻",
+      "ASSIST"
+    ]
+  },
+  "kill_patterns": [
+    "终结",
+    "击败",
+    "击杀",
+    "击倒",
+    "助攻"
+  ],
+  "trigger_kinds": [
+    "kill",
+    "knockdown",
+    "hit"
+  ],
+  "trigger_note": "开窗信号：kill（终结/击败）、knockdown（击倒/精准击倒）、hit（只有左上角播报、中下横幅没弹的情况——实测有时击杀了不弹中下横幅，所以播报是主判据）。助攻横幅是交火结束后才弹的，不参与开窗（但落在窗口里会记进片段信息）。",
+  "left_edge_tolerance": 0.06,
+  "regions": {
+    "self_action": {
+      "box": [
+        750,
+        525,
+        1275,
+        810
+      ],
+      "anchor": [
+        "center",
+        "bottom"
+      ],
+      "mode": "banner",
+      "min_left_inset": 0.06,
+      "max_left_inset": 0.7,
+      "min_height": 0.03,
+      "note": "本人战果横幅（中下偏中）。实测 2560x1600：行动词 击倒/精准击倒/助攻 落在 x 1179~1250、y 935~960；终结×N 落在 x 1179、y 1121~1183。min_left_inset 用来挡 Tab 计分板被裁到贴边的「亡/助攻」。"
+    },
+    "kill_feed": {
+      "box": [
+        20,
+        80,
+        780,
+        500
+      ],
+      "anchor": [
+        "left",
+        "top"
+      ],
+      "scale_mode": "height",
+      "mode": "feed",
+      "min_confidence": 0.5,
+      "note": "左上角击杀播报。实测两段录像最新一行 y 不一样（2304x1440 在 185，2560x1600 在 262），所以框留宽：base y 80~500 覆盖两种。行位置由图标模板反推，不依赖这里的精确 y。"
+    },
+    "round_state": {
+      "box": [
+        660,
+        40,
+        1260,
+        120
+      ],
+      "anchor": [
+        "center",
+        "top"
+      ],
+      "note": "可选：顶部比分条（04 / 目标9回合 / 00:08 / 05），用于自动切分对局与回合。"
+    },
+    "weapon_name": {
+      "box": [
+        1588,
+        966,
+        1728,
+        1008
+      ],
+      "anchor": [
+        "center",
+        "bottom"
+      ],
+      "min_confidence": 0.55,
+      "note": "HUD 右下角武器名文字（如「独舞」）。实测 2560x1600：文字 x 2142~2181、y 1466~1481，换算 /1.3333 后再按 center+bottom 锚定；4 字名会往右长，所以框留宽到 140。"
+    },
+    "match_id": {
+      "box": [
+        28,
+        56,
+        320,
+        84
+      ],
+      "anchor": [
+        "left",
+        "top"
+      ],
+      "min_confidence": 0.5,
+      "note": "左上角那行很淡的对局编号（编号+构建版本，如 753029202910957071C1.18.3.751.183.7）。实测 2560x1600 文字在 x 54~390、y 96~112；2304x1440 在 x 49~380、y 89~105，换算回基准后一致，所以按 left+top 锚定即可。"
+    },
+    "self_portrait": {
+      "box": [
+        23.6,
+        933.5,
+        92.5,
+        1001.7
+      ],
+      "anchor": [
+        "left",
+        "bottom"
+      ],
+      "scale_mode": "height",
+      "note": "左下角本人角色头像"
+    },
+    "weapon_hud": {
+      "box": [
+        2268.4,
+        933.5,
+        2527.6,
+        1010.5
+      ],
+      "anchor": [
+        "right",
+        "bottom"
+      ],
+      "scale_mode": "height",
+      "note": "右下角武器 HUD（剪影 + 弹药）"
+    },
+    "names": {
+      "box": [
+        420,
+        300,
+        700,
+        790
+      ],
+      "anchor": [
+        "left",
+        "top"
+      ],
+      "scale_mode": "height",
+      "min_confidence": 0.5,
+      "note": "Tab 计分板昵称列的粗框（只要把 10 行昵称框进来即可，行位置由 OCR 反推）。实测 2560x1600：昵称 x 678~1010、y 480~1140。计分板按画面高度缩放，所以 scale_mode=height。"
+    }
+  },
+  "recording": {
+    "past": 8.0,
+    "future": 2.0,
+    "pending": 5.0,
+    "note": "past+future 不能超过 OBS 回放缓冲长度。"
+  },
+  "truth": {
+    "note": "人工标注的本人战果时间码（秒），用于 detect --truth 的召回/误报评测。",
+    "samples": {
+      "Calabiyau-Win64-Shipping 2026.10.11 - 15.26.48.02.DVR.mp4": [
+        91.0,
+        106.0,
+        111.0
+      ]
+    }
+  },
+  "weapons_file": "weapons/strinova-weapons.json",
+  "lineup": {
+    "note": "顶部阵容条 10 个头像（我方 5 + 对方 5，从左到右）；实测自 2560×1600 截图，按画面高度缩放",
+    "anchor": [
+      "center",
+      "top"
+    ],
+    "scale_mode": "height",
+    "slots": [
+      [
+        443.6,
+        77.0,
+        501.0,
+        112.1
+      ],
+      [
+        511.8,
+        77.0,
+        569.2,
+        112.1
+      ],
+      [
+        580.6,
+        77.0,
+        638.0,
+        112.1
+      ],
+      [
+        649.5,
+        77.0,
+        706.2,
+        112.7
+      ],
+      [
+        717.7,
+        77.0,
+        775.0,
+        112.7
+      ],
+      [
+        1145.0,
+        77.0,
+        1202.3,
+        112.1
+      ],
+      [
+        1214.5,
+        77.0,
+        1271.8,
+        112.1
+      ],
+      [
+        1282.7,
+        77.0,
+        1340.0,
+        112.1
+      ],
+      [
+        1350.8,
+        77.0,
+        1408.2,
+        112.1
+      ],
+      [
+        1419.7,
+        77.0,
+        1477.1,
+        112.1
+      ]
+    ]
+  }
+}
